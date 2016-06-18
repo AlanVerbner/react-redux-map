@@ -10,6 +10,9 @@ _.range(50).forEach(() => {
     phone: faker.phone.phoneNumber(),
     latitude: faker.address.latitude(),
     longitude: faker.address.longitude(),
+    address: faker.address.streetAddress(),
+    description: faker.lorem.paragraph(),
+    image: faker.image.business(),
   };
 });
 
