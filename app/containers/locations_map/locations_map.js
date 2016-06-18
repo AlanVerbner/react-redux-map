@@ -48,6 +48,12 @@ class LocationsMap extends React.Component {
     this.props.fetchAsync();
   }
 
+  onMapClick(x, y, lat, lng, event) {
+    if (this.props.selectedLocation) {
+      this.props.deselectLocation();
+    }
+  }
+
   render() {
     return (
       <section style={{ height: '100%' }}>
@@ -55,6 +61,7 @@ class LocationsMap extends React.Component {
         <GoogleMap
           zoom={this.props.zoom}
           center={this.props.center}
+          onClick={(x, y, lat, lng, event) => this.onMapClick(x, y, lat, lng, event)}
           onChildClick={(key, childProps) => this.props.selectLocation(childProps.location)}
         >
             {this.props.locations.map((location) =>
@@ -76,6 +83,7 @@ LocationsMap.propTypes = {
   locations: React.PropTypes.array.isRequired,
   selectedLocation: React.PropTypes.object,
   selectLocation: React.PropTypes.func.isRequired,
+  deselectLocation: React.PropTypes.func.isRequired,
   zoom: React.PropTypes.number.isRequired,
   center: React.PropTypes.array.isRequired,
 };
