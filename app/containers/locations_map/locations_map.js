@@ -2,11 +2,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import GoogleMap from 'google-map-react';
-import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
+import { Card, CardActions, CardTitle, CardText } from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 
 import { fetchAsync, deleteAsync } from '../../reducers/locations/locations_actions';
-import { selectLocation, deselectLocation } from '../../reducers/ui/map_page_actions';
+import { selectLocation, deselectLocation, getNavigatorGeolocation } from '../../reducers/ui/map_page_actions';
 
 function Location(props) {
   return (
@@ -45,6 +45,7 @@ LocationDescription.propTypes = {
 class LocationsMap extends React.Component {
 
   componentDidMount() {
+    this.props.getNavigatorGeolocation();
     this.props.fetchAsync();
   }
 
@@ -79,6 +80,7 @@ class LocationsMap extends React.Component {
 }
 
 LocationsMap.propTypes = {
+  getNavigatorGeolocation: React.PropTypes.func.isRequired,
   fetchAsync: React.PropTypes.func.isRequired,
   locations: React.PropTypes.array.isRequired,
   selectedLocation: React.PropTypes.object,
@@ -97,8 +99,10 @@ function getSelectedLocation(state) {
   return state.locations.entities.find(location => location.id === state.mapPage.selected);
 }
 
-function calculateCenter(selectedLocation) {
-  if (!selectedLocation) return [59.938043, 30.337157];
+function calculateCenter(selectedLocation, userLocation) {
+  if (!selectedLocation) {
+    return userLocation ? [parseFloat(userLocation.latitude), parseFloat(userLocation.longitude)] : [59.938043, 30.337157];
+  }
   return [parseFloat(selectedLocation.latitude), parseFloat(selectedLocation.longitude)];
 }
 
@@ -106,13 +110,14 @@ function mapStateToProps(state) {
   const selectedLocation = getSelectedLocation(state);
   return {
     locations: state.locations.entities,
-    center: calculateCenter(selectedLocation),
+    center: calculateCenter(selectedLocation, state.mapPage.userLocation),
     selectedLocation,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
+    getNavigatorGeolocation: () => dispatch(getNavigatorGeolocation()),
     fetchAsync: () => dispatch(fetchAsync()),
     deleteAsync: (id) => dispatch(deleteAsync(id)),
     selectLocation: (location) => dispatch(selectLocation(location)),
